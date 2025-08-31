@@ -281,7 +281,27 @@ async def run(username: str, sites: list[str], concurrency: int, timeout: int, r
                     return {"site": name, "url": None, "status": 0, "available": None}
         results = await asyncio.gather(*(task(s) for s in sites), return_exceptions=True)
 
-    return {"username": username, "results": results}
+    processed = []
+    for site_name, res in zip(sites, results):
+        if isinstance(res, Exception):
+            url = None
+            try:
+                url_tpl = SITES.get(site_name, {}).get("url")
+                if url_tpl:
+                    url = url_tpl.format(username=username)
+            except Exception:
+                pass
+            processed.append({
+                "site": site_name,
+                "url": url,
+                "status": 0,
+                "available": None,
+                "error": str(res),
+            })
+        else:
+            processed.append(res)
+
+    return {"username": username, "results": processed}
 
 
 # ============================
@@ -295,6 +315,9 @@ def pretty_print(data: Dict[str, Any]) -> None:
     print(f"Résultats pour: {data['username']}")
     print("-" * width)
     for r in data["results"]:
+        if isinstance(r, dict) and "error" in r:
+            print(f"{r.get('site', ''):<20} | ERREUR     | {r['error']} | {r.get('url')}")
+            continue
         if r["available"] is True:
             state = "DISPONIBLE"
         elif r["available"] is False:
