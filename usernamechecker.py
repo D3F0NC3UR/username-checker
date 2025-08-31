@@ -27,9 +27,9 @@ from datetime import datetime, timedelta
 # ============================
 # Réglages
 # ============================
-CATALOG_URL = "https://raw.githubusercontent.com/sherlock-project/sherlock/master/sherlock/resources/data.json"
+CATALOG_URL = "https://raw.githubusercontent.com/sherlock-project/sherlock/main/sherlock/resources/data.json"
 CATALOG_FALLBACKS = [
-    "https://github.com/sherlock-project/sherlock/raw/master/sherlock/resources/data.json",
+    "https://github.com/sherlock-project/sherlock/raw/main/sherlock/resources/data.json",
     "https://cdn.jsdelivr.net/gh/sherlock-project/sherlock/sherlock/resources/data.json",
 ]
 CACHE_PATH = Path(os.path.expanduser("~/.cache/username_checker/sherlock_data.json"))
