@@ -297,13 +297,17 @@ def pretty_print(data: Dict[str, Any]) -> None:
 
 
 def export_json(path: str, data: Dict[str, Any]) -> None:
-    Path(path).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def export_csv(path: str, data: Dict[str, Any]) -> None:
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", newline="", encoding="utf-8") as f:
         wr = csv.writer(f)
-        wr.writerow(["site", "available", "status", "url"]) 
+        wr.writerow(["site", "available", "status", "url"])
         for r in data["results"]:
             wr.writerow([r["site"], r["available"], r["status"], r["url"]])
 
