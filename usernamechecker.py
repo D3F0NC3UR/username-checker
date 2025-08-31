@@ -15,6 +15,7 @@ import aiohttp
 import argparse
 import json
 import csv
+import logging
 import os
 import random
 import re
@@ -273,8 +274,12 @@ async def run(username: str, sites: list[str], concurrency: int, timeout: int, r
     async with aiohttp.ClientSession(headers=headers, connector=connector) as session:
         async def task(name: str):
             async with sem:
-                return await check_one(session, name, username, SITES[name], timeout, retries)
-        results = await asyncio.gather(*(task(s) for s in sites))
+                try:
+                    return await check_one(session, name, username, SITES[name], timeout, retries)
+                except KeyError:
+                    logging.warning("Site %s not found; skipping", name)
+                    return {"site": name, "url": None, "status": 0, "available": None}
+        results = await asyncio.gather(*(task(s) for s in sites), return_exceptions=True)
 
     return {"username": username, "results": results}
 
