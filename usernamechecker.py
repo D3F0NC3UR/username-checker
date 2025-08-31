@@ -34,7 +34,11 @@ CATALOG_FALLBACKS = [
 ]
 CACHE_PATH = Path(os.path.expanduser("~/.cache/username_checker/sherlock_data.json"))
 CACHE_TTL_DAYS = 7
-AUTO_TOP_DEFAULT = 1000  # nombre de sites à charger par défaut depuis le catalogue
+# Charger tout le catalogue par défaut
+AUTO_TOP_DEFAULT = 100000  # nombre de sites à charger par défaut depuis le catalogue
+
+# Catalogue intégré livré avec le script
+DATA_FILE = Path(__file__).with_name("data.json")
 
 DEFAULT_CONCURRENCY = 20
 DEFAULT_TIMEOUT = 10
@@ -109,7 +113,7 @@ def load_sherlock_sites(path: str, top: Optional[int] = None) -> Dict[str, Dict[
     Trie par 'rank' si présent. Applique top si fourni.
     """
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
-    items = list(raw.items())
+    items = [(k, v) for k, v in raw.items() if isinstance(v, dict)]
 
     def order_key(it):
         name, cfg = it
@@ -330,7 +334,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--cache", default=str(CACHE_PATH))
     p.add_argument("--auto-top", type=int, default=AUTO_TOP_DEFAULT, help="Limiter le nombre de sites auto-chargés")
     p.add_argument("--ttl", type=int, default=CACHE_TTL_DAYS, help="Fraîcheur max du cache (jours)")
-    p.add_argument("--catalog-file", help="Chemin local vers un data.json (si réseau bloqué)")
+    p.add_argument("--catalog-file", default=str(DATA_FILE),
+                   help="Chemin local vers un data.json (défaut: intégré)")
     return p.parse_args(argv)
 
 
